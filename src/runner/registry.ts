@@ -25,7 +25,14 @@ export function getProvider(id: string): ModelProvider {
     case "claude":
       return anthropicProvider("claude-opus-4-8");
     case "gpt":
-      return openAICompatibleProvider({ model: "gpt-4o" });
+      return openAICompatibleProvider({ model: "gpt-4o-2024-11-20" }); // pinned snapshot
+    case "gemini":
+      // Google via its OpenAI-compatible endpoint — one line closes the "Google" spec bullet.
+      return openAICompatibleProvider({
+        model: process.env.GEMINI_MODEL ?? "gemini-2.0-flash",
+        baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
+        apiKeyEnv: "GEMINI_API_KEY",
+      });
     case "local":
       return openAICompatibleProvider({
         model: process.env.LOCAL_MODEL ?? "local-model",
@@ -33,6 +40,6 @@ export function getProvider(id: string): ModelProvider {
         apiKeyEnv: "LOCAL_API_KEY",
       });
     default:
-      throw new Error(`Unknown provider id: "${id}" (known: ${Object.keys(MOCK_VARIANTS).join(", ")}, claude, gpt, local)`);
+      throw new Error(`Unknown provider id: "${id}" (known: ${Object.keys(MOCK_VARIANTS).join(", ")}, claude, gpt, gemini, local)`);
   }
 }

@@ -54,6 +54,7 @@ export function openAICompatibleProvider(opts: OpenAICompatibleOpts): ModelProvi
         body: JSON.stringify({
           model: opts.model,
           temperature: req.temperature ?? 0,
+          seed: 7, // fix the seed where the provider allows it (best-effort determinism)
           max_tokens: req.maxTokens ?? 4096,
           messages: toOpenAIMessages(req.system, req.messages),
           tools: req.tools.map((t) => ({
