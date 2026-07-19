@@ -11,6 +11,7 @@ const integrationDir = process.env.INTEGRATION_DIR ?? path.resolve(dir, "../fixt
 // Mock below the integration: swap the SDK by alias, never touch the integration code.
 const alias: Record<string, string> = {
   "@integration/frontend": path.resolve(integrationDir, "frontend.tsx"),
+  "@contract": path.resolve(dir, "src/contract.ts"),
 };
 if (mode === "mock") {
   alias["@coinflow/react"] = path.resolve(dir, "../src/mock/sdk/index.tsx");

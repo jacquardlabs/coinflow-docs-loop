@@ -9,7 +9,8 @@
     "mock": "tsx src/mock/api/main.ts",
     "smoke": "tsx src/mock/api/smoke.ts",
     "drive:za": "tsx src/verifier/drive-za.ts",
-    "verify": "tsx src/verifier/run.ts"
+    "verify": "tsx src/verifier/run.ts",
+    "implement": "tsx src/harness/run-implementer.ts"
   },
   "dependencies": {
     "express": "^4.21.2",
