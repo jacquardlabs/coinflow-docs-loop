@@ -18,5 +18,8 @@ implement:   ## one implementer run (default: mock + v0 docs)
 panel:       ## score a docs version across the panel + holdout
 	pnpm panel
 
+probe:       ## validate the mock's contract against the live sandbox (needs COINFLOW_MODE=sandbox + key)
+	pnpm probe
+
 typecheck:   ## type-check the whole repo
 	pnpm typecheck

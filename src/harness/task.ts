@@ -18,18 +18,18 @@ You have ONLY the documentation page provided below — no SDK source, no other 
 Produce a working integration by writing exactly two files, then calling submit:
 
 1. frontend.tsx — a React module that exports:
-     export function ZeroAuthStep({ onPaymentId, onDeviceId }: ZeroAuthStepProps)
+     export function ZeroAuthStep({ onPaymentId, onDeviceId, merchantId, env }: ZeroAuthStepProps)
    Render the SDK's zero-authorization ("store a card without charging") UI. Call
    onPaymentId(id) with the resulting reusable payment reference when authorization
    succeeds. If the SDK exposes a device id for fraud / chargeback protection, obtain it
-   and call onDeviceId(id).
+   and call onDeviceId(id). Pass the provided merchantId and env props to the SDK; do not hardcode them.
    Import the SDK from "@coinflow/react". Import any types from "@contract" using
    \`import type { ... } from "@contract"\` — it exports types only.
 
 2. charge.ts — a backend module that exports:
-     export const charge: ChargeFn = async ({ paymentId, deviceId }, { apiBase, merchantId }) => { ... }
+     export const charge: ChargeFn = async ({ paymentId, deviceId }, { apiBase, merchantId, apiKey }) => { ... }
    Charge the stored card by calling the SDK's HTTP API at \`apiBase\`, referencing the
-   stored card via paymentId. Return one of:
+   stored card via paymentId, and authenticate the request with apiKey as the docs describe. Return one of:
      - { status: "charged", paymentId }               on success
      - { status: "needs_reverification" }             if the stored card can no longer be charged and the customer must re-verify
      - { status: "error", code }                       otherwise

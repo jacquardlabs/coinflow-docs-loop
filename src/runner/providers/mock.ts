@@ -74,16 +74,16 @@ function frontendFile(s: DocSignals): string {
 import { CoinflowPurchase, CoinflowPurchaseProtection, getCoinflowDeviceId } from "@coinflow/react";
 import type { ZeroAuthStepProps } from "@contract";
 
-export function ZeroAuthStep({ onPaymentId, onDeviceId }: ZeroAuthStepProps) {
+export function ZeroAuthStep({ onPaymentId, onDeviceId, merchantId, env }: ZeroAuthStepProps) {
   useEffect(() => {
     void getCoinflowDeviceId().then(onDeviceId);
   }, [onDeviceId]);
 
   return (
-    <CoinflowPurchaseProtection merchantId="applied-ai">
+    <CoinflowPurchaseProtection merchantId={merchantId}>
       <CoinflowPurchase
-        merchantId="applied-ai"
-        env="sandbox"
+        merchantId={merchantId}
+        env={env}
         zeroAuthorizationConfig={{ disableSavedPaymentMethods: true }}
         onSuccess={({ paymentId }) => onPaymentId(paymentId)}
       />
@@ -95,11 +95,11 @@ export function ZeroAuthStep({ onPaymentId, onDeviceId }: ZeroAuthStepProps) {
   return `import { CoinflowPurchase } from "@coinflow/react";
 import type { ZeroAuthStepProps } from "@contract";
 
-export function ZeroAuthStep({ onPaymentId }: ZeroAuthStepProps) {
+export function ZeroAuthStep({ onPaymentId, merchantId, env }: ZeroAuthStepProps) {
   return (
     <CoinflowPurchase
-      merchantId="applied-ai"
-      env="sandbox"
+      merchantId={merchantId}
+      env={env}
       zeroAuthorizationConfig={{ disableSavedPaymentMethods: true }}
       onSuccess={({ paymentId }) => onPaymentId(paymentId)}
     />

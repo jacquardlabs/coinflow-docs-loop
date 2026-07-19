@@ -3,17 +3,17 @@ import { CoinflowPurchase, CoinflowPurchaseProtection, getCoinflowDeviceId } fro
 import type { ZeroAuthStepProps } from "../../scaffold/src/contract";
 
 // A CORRECT integration, hand-written from the ideal docs. Scores ≈1.0.
-// It's what a v0-doc-fed agent should eventually converge toward.
-export function ZeroAuthStep({ onPaymentId, onDeviceId }: ZeroAuthStepProps) {
+// Uses the shell-provided merchantId + env, so it is environment-portable.
+export function ZeroAuthStep({ onPaymentId, onDeviceId, merchantId, env }: ZeroAuthStepProps) {
   useEffect(() => {
     void getCoinflowDeviceId().then(onDeviceId);
   }, [onDeviceId]);
 
   return (
-    <CoinflowPurchaseProtection merchantId="applied-ai">
+    <CoinflowPurchaseProtection merchantId={merchantId}>
       <CoinflowPurchase
-        merchantId="applied-ai"
-        env="sandbox"
+        merchantId={merchantId}
+        env={env}
         zeroAuthorizationConfig={{ disableSavedPaymentMethods: true }}
         onSuccess={({ paymentId }) => onPaymentId(paymentId)}
       />

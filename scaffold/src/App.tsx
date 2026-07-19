@@ -11,6 +11,10 @@ export function App() {
   const [result, setResult] = useState<ChargeResult | null>(null);
   const [charging, setCharging] = useState(false);
 
+  const cfg = window as unknown as { __COINFLOW_MERCHANT_ID__?: string; __COINFLOW_ENV__?: string };
+  const merchantId = cfg.__COINFLOW_MERCHANT_ID__ ?? "applied-ai";
+  const env: "sandbox" | "prod" = cfg.__COINFLOW_ENV__ === "prod" ? "prod" : "sandbox";
+
   async function onCharge() {
     if (!paymentId) return;
     setCharging(true);
@@ -34,7 +38,7 @@ export function App() {
 
       <section>
         <h3>1 · Zero Authorization</h3>
-        <ZeroAuthStep onPaymentId={setPaymentId} onDeviceId={setDeviceId} />
+        <ZeroAuthStep onPaymentId={setPaymentId} onDeviceId={setDeviceId} merchantId={merchantId} env={env} />
         {paymentId && <p data-testid="za-payment-id">{paymentId}</p>}
       </section>
 

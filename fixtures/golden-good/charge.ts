@@ -1,12 +1,14 @@
 import type { ChargeFn } from "../../scaffold/src/contract.js";
 
 // Correct Card-on-File: right endpoint, paymentId in `originalPaymentId`, device id
-// forwarded as x-device-id, and a 410 caught and normalized to needs_reverification.
-export const charge: ChargeFn = async ({ paymentId, deviceId }, { apiBase }) => {
+// forwarded as x-device-id, server-side auth when a key is present, and a 410 caught and
+// normalized to needs_reverification. Environment-portable via ctx (apiBase/apiKey).
+export const charge: ChargeFn = async ({ paymentId, deviceId }, { apiBase, apiKey }) => {
   const res = await fetch(`${apiBase}/api/checkout/card-on-file`, {
     method: "POST",
     headers: {
       "content-type": "application/json",
+      ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}),
       ...(deviceId ? { "x-device-id": deviceId } : {}),
     },
     body: JSON.stringify({

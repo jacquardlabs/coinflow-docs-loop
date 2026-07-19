@@ -11,12 +11,12 @@ import { createMockServer } from "../mock/api/server.js";
 import type { RequestLogEntry } from "../mock/api/types.js";
 import { createIntegrationServer } from "../../scaffold/server/create-server.js";
 import type { ChargeFn } from "../../scaffold/src/contract.js";
+import { resolveCoinflowEnv } from "../config/coinflow-env.js";
 import { LINE_ITEMS, score } from "../rubric/rubric.js";
 import type { LineItemId, LineItemResult, Scorecard } from "../rubric/rubric.js";
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const scaffoldRoot = path.resolve(dir, "../../scaffold");
-const MERCHANT_ID = "applied-ai";
 const TEST_PAN = "4111111111111111";
 
 export interface VerifyResult {
@@ -67,16 +67,23 @@ export async function verify(fixtureDir: string): Promise<VerifyResult> {
   const mockServer = mockApp.listen(0);
   const mockBase = `http://127.0.0.1:${(mockServer.address() as AddressInfo).port}`;
 
+  // The automated verifier drives the MOCK's iframe, so it pins mode=mock and points apiBase
+  // at the ephemeral mock; merchantId/env/apiKey still flow from config so the exact same
+  // wiring is exercised. Sandbox/prod browser runs are a documented extension (real iframe).
+  process.env.COINFLOW_MODE = "mock";
+  const cf = resolveCoinflowEnv({ apiBase: mockBase });
+
   // 2. Integration backend (agent-filled charge()).
   const chargeMod = (await import(pathToFileURL(path.join(fixtureDir, "charge.ts")).href)) as { charge: ChargeFn };
-  const backend = createIntegrationServer(chargeMod.charge, { apiBase: mockBase, merchantId: MERCHANT_ID });
+  const backend = createIntegrationServer(chargeMod.charge, { apiBase: cf.apiBase, merchantId: cf.merchantId, apiKey: cf.apiKey });
   const backendServer = backend.listen(0);
   const backendPort = (backendServer.address() as AddressInfo).port;
 
   // 3. Integration frontend (Vite dev; aliases come from scaffold/vite.config.ts via env).
   process.env.VITE_COINFLOW_MOCK_BASE = mockBase;
+  process.env.VITE_COINFLOW_MERCHANT_ID = cf.merchantId;
+  process.env.VITE_COINFLOW_ENV = cf.sdkEnv;
   process.env.INTEGRATION_DIR = fixtureDir;
-  process.env.COINFLOW_MODE = "mock";
   const vite = await createViteServer({
     root: scaffoldRoot,
     server: { host: "127.0.0.1", port: 0, proxy: { "/charge": `http://127.0.0.1:${backendPort}` } },

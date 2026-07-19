@@ -12,6 +12,8 @@ export interface ChargeContext {
   /** Coinflow API base URL (mock or live). */
   apiBase: string;
   merchantId: string;
+  /** Server-side API key for Card-on-File auth. Undefined in mock mode. */
+  apiKey?: string;
 }
 
 export type ChargeResult =
@@ -26,4 +28,7 @@ export type ChargeFn = (input: ChargeInput, ctx: ChargeContext) => Promise<Charg
 export interface ZeroAuthStepProps {
   onPaymentId: (paymentId: string) => void;
   onDeviceId: (deviceId: string) => void;
+  /** Provided by the shell — pass to the SDK; do not hardcode. */
+  merchantId: string;
+  env: "sandbox" | "prod";
 }

@@ -69,6 +69,29 @@ ANTHROPIC_API_KEY=sk-ant-... pnpm implement claude za-guide.v0
 doppler run -- pnpm implement claude za-guide.v0
 ```
 
+## Targeting a Coinflow environment
+
+The same integration + harness run against any Coinflow env via env vars — `mock` is the
+default and needs no keys. `resolveCoinflowEnv()` (`src/config/coinflow-env.ts`) is the single
+seam; `merchantId`, `env`, and `apiKey` flow from it through the contract into the integration.
+
+| var | mock (default) | sandbox | prod |
+|---|---|---|---|
+| `COINFLOW_MODE` | `mock` | `sandbox` | `prod` |
+| `apiBase` | injected mock URL | `api-sandbox.coinflow.cash` | `api.coinflow.cash` |
+| SDK | aliased stub | real `@coinflow/react` | real `@coinflow/react` |
+| `COINFLOW_MERCHANT_ID` | `applied-ai` | yours | yours |
+| `COINFLOW_API_KEY` | — | required | required |
+
+Validate the mock's contract against the real sandbox API (needs the key):
+
+```bash
+COINFLOW_MODE=sandbox COINFLOW_API_KEY=… pnpm probe
+```
+
+Sandbox/prod **browser** runs additionally need the real `@coinflow/react` installed and the
+live hosted-iframe selectors (a documented extension); the mock path and `pnpm probe` need neither.
+
 ## Model-agnostic runner
 
 Every provider implements one interface (`src/runner/provider.ts`); a minimal agentic tool-use loop runs
