@@ -1,0 +1,56 @@
+name: docs-eval
+
+# Gate doc and SDK changes on the agent-integrability of the docs. Runs entirely on the
+# deterministic mock panel — no secrets, no live API calls — so it is safe on every PR.
+# The live panel (real models via secrets) belongs on a schedule / SDK-release trigger.
+on:
+  pull_request:
+    paths:
+      - "docs/**"
+      - "src/**"
+      - "scaffold/**"
+      - "fixtures/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+  workflow_dispatch:
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+
+      # Harness must be trustworthy before we trust any score.
+      - name: Type-check
+        run: pnpm typecheck
+      - name: Oracle smoke (deterministic core)
+        run: pnpm smoke
+      - name: Golden fixtures (verifier sanity)
+        run: |
+          pnpm verify golden-good
+          pnpm verify golden-broken
+
+      # The full panel -> edit -> panel loop; drops before/after + diff in artifacts/eval/.
+      - name: make eval (mock panel)
+        run: pnpm eval
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-scorecards
+          path: artifacts/eval/
+
+# A hard gate (fail the PR when panel full_pass drops or a gating line-item regresses)
+# compares artifacts/eval/**/after.json against a committed baseline — see docs/writeup.md.

@@ -23,7 +23,8 @@ Produce a working integration by writing exactly two files, then calling submit:
    onPaymentId(id) with the resulting reusable payment reference when authorization
    succeeds. If the SDK exposes a device id for fraud / chargeback protection, obtain it
    and call onDeviceId(id).
-   Import the SDK from "@coinflow/react". Import types from "@contract".
+   Import the SDK from "@coinflow/react". Import any types from "@contract" using
+   \`import type { ... } from "@contract"\` — it exports types only.
 
 2. charge.ts — a backend module that exports:
      export const charge: ChargeFn = async ({ paymentId, deviceId }, { apiBase, merchantId }) => { ... }
@@ -32,7 +33,7 @@ Produce a working integration by writing exactly two files, then calling submit:
      - { status: "charged", paymentId }               on success
      - { status: "needs_reverification" }             if the stored card can no longer be charged and the customer must re-verify
      - { status: "error", code }                       otherwise
-   Import types from "@contract".
+   Import any types from "@contract" using \`import type { ... } from "@contract"\` — it exports types only.
 
 Tool protocol: call write_file({ path, content }) once per file (path is just the filename),
 then call submit() when both files are written. Write complete, runnable files.`;

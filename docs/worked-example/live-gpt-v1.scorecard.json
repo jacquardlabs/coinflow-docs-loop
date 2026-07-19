@@ -1,0 +1,37 @@
+{
+  "rubricVersion": "v1",
+  "lineItems": [
+    {
+      "id": "boots",
+      "passed": true,
+      "reason": null
+    },
+    {
+      "id": "za_renders",
+      "passed": true,
+      "reason": null
+    },
+    {
+      "id": "onsuccess_payment_id",
+      "passed": true,
+      "reason": null
+    },
+    {
+      "id": "cof_correct_ref",
+      "passed": false,
+      "reason": "hallucinated_endpoint"
+    },
+    {
+      "id": "graceful_410",
+      "passed": false,
+      "reason": "unhandled_410"
+    },
+    {
+      "id": "device_id",
+      "passed": false,
+      "reason": "missing_nsure_device_id"
+    }
+  ],
+  "rollUp": 0.5,
+  "fullPass": false
+}

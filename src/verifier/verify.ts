@@ -89,11 +89,19 @@ export async function verify(fixtureDir: string): Promise<VerifyResult> {
   try {
     const page = await browser.newPage();
 
+    let loaded = false;
     try {
       await page.goto(appUrl, { timeout: 15_000 });
-      pass("boots");
+      loaded = true;
     } catch {
       fail("boots", "boot_failed");
+    }
+    if (loaded) {
+      // "boots" means the app actually MOUNTED. A build/import error in the agent's code
+      // leaves the page served but the React tree unmounted — that must read as build_failed,
+      // not silently pass boots and mislead the downstream reason.
+      if (await visible(page, '[data-testid="app-ready"]', 10_000)) pass("boots");
+      else fail("boots", "build_failed");
     }
 
     if (results.get("boots")?.passed) {

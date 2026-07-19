@@ -49,6 +49,11 @@ does** — we are testing the docs, not the editor.
 - **The verifier only sees what's in the rubric.** "Passes but subtly wrong in production" is real; the
   answer is a *growing* rubric (discovery automatic, promotion curated) + live cadence, not a claim of
   completeness.
+- **The optimization panel's failure distribution must match reality — or you fix the wrong gaps.** Live
+  proof: the offline mock loop took Claude 0.70→1.00 but left GPT-4o at 0.50→0.50. GPT *learned* the
+  410/device edits from v1 yet keeps hallucinating the COF endpoint — a gap the mock never exhibits, so the
+  editor never targeted it. Mitigation: put real, diverse models *in* the panel (not just the holdout); the
+  mock is for CI and machinery, not for discovering which gaps matter.
 
 ## Cost, latency, flakiness — honest numbers
 

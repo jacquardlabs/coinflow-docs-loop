@@ -37,3 +37,21 @@ held-out model exists to catch — and the thorough editor clears it.
 | `live-claude-v1.scorecard.json` | live Claude on the optimized page → 1.00 |
 
 Regenerate everything with `make eval` (offline) or `doppler run -p playground -c dev -- pnpm implement claude za-guide.v1` (live).
+
+## Two real models diverge — the mock panel's blind spot
+
+| model | v0 | v1 | what happened |
+|---|---|---|---|
+| Claude Opus 4.8 | 0.70 | **1.00** | learned 410 + device id from v1; full pass |
+| GPT-4o | 0.50 | **0.50** | *also* learned 410 + device id from v1 — but hallucinates the COF endpoint, which cascades |
+
+GPT read v1 and correctly added the `410` branch and the `x-device-id` header — yet it still POSTs to a
+**made-up endpoint** (`/api/checkout/merchant-initiated-transaction`), so a 404 (not 410) comes back, the
+410 branch never fires, the device header never reaches a real COF call, and all three COF-dependent
+line-items fail at once (`live-gpt-v0.scorecard.json`, `live-gpt-v1.scorecard.json`).
+
+Its dominant gap — endpoint hallucination — was **never in the mock panel's failure distribution** (the
+mock always uses the right endpoint), so the editor never targeted `cof_correct_ref` and the doc's
+endpoint guidance stayed too weak for GPT. **Lesson: optimizing against a narrow/mock panel closes the
+gaps that panel shows, not the gaps a different real model has. Put real, diverse models *in* the panel,
+not just the holdout — the mock is for machinery and CI, not for discovering which gaps matter.**

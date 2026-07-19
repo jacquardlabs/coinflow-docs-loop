@@ -29,7 +29,7 @@ export function App() {
   }
 
   return (
-    <main style={{ fontFamily: "system-ui, sans-serif", maxWidth: 560, margin: "24px auto" }}>
+    <main data-testid="app-ready" style={{ fontFamily: "system-ui, sans-serif", maxWidth: 560, margin: "24px auto" }}>
       <h2>Store a card, then charge it</h2>
 
       <section>
