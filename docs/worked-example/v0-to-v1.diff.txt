@@ -1,0 +1,35 @@
++ 
++ 
++ ## Handling an expired card reference (410 Gone)
++ 
++ A Card-on-File charge can fail with **410 Gone** when the stored reference can no longer be
++ used — it has exceeded the merchant's velocity limit or expired. Do not surface this as a raw
++ error. Re-verify the card (run Zero Authorization again to obtain a fresh reference) or fall
++ back to the hosted Coinflow UI to collect the card again.
++ 
++ ```ts
++ // A 410 means the stored reference hit its velocity limit or expired.
++ if (res.status === 410) {
++   // Re-verify instead of erroring out.
++   return { status: "needs_reverification" };
++ }
++ ```
++ 
++ 
++ ## Chargeback protection: the nSure device id
++ 
++ When chargeback protection is enabled, every Card-on-File charge must carry the nSure device
++ id. Wrap the checkout in `CoinflowPurchaseProtection`, read the id with `getCoinflowDeviceId()`,
++ and send it as the `x-device-id` header on the charge request.
++ 
++ ```tsx
++ import { CoinflowPurchaseProtection, getCoinflowDeviceId } from "@coinflow/react";
++ 
++ <CoinflowPurchaseProtection merchantId={merchantId}>
++   <CoinflowPurchase /* ...zeroAuthorizationConfig... */ />
++ </CoinflowPurchaseProtection>;
++ 
++ const deviceId = await getCoinflowDeviceId();
++ // include on the Card-on-File request:  headers["x-device-id"] = deviceId;
++ ```
++ 

@@ -1,0 +1,92 @@
+# Self-improving, model-agnostic docs for agent-native SDK integration
+
+The docs page is the artifact under optimization. **Integration success is the loss function.**
+
+An **implementer** agent reads one Coinflow docs page (plus a task and sandbox) and produces a
+runnable Zero-Authorization → Card-on-File integration. A deterministic **verifier** proves the
+integration actually works — it boots the app and drives the real card-entry iframe with a headless
+browser. Failure signals feed a **docs-editor** that makes targeted edits to the page. The whole thing
+runs across a **panel of models** with one held out, so the docs never overfit to one model.
+
+```
+docs page ──▶ implementer (model-agnostic) ──▶ integration ──▶ verifier ──▶ scorecard
+   ▲                                                                            │
+   └────────────────── docs-editor ◀── failure signals ◀───────────────────────┘
+              (targeted edits, under a length budget, until the panel plateaus)
+```
+
+## The metric (rubric v1)
+
+A single run scores a **weighted line-item vector**, not a bare pass/fail — the editor needs a
+gradient, the scorecard needs an honest headline. See `src/rubric/rubric.ts`.
+
+| line-item | tier | weight | failure signal |
+|---|---|---|---|
+| boots | gating | 0.10 | `build_failed` |
+| ZA renders | gating | 0.15 | `za_did_not_render` |
+| onSuccess + paymentId | gating | 0.25 | `no_payment_id` |
+| COF references paymentId correctly | gating | 0.20 | `wrong_reference_field` |
+| graceful 410 | additive | 0.18 | `unhandled_410` |
+| nSure device id | additive | 0.12 | `missing_nsure_device_id` |
+
+- **`roll_up`** (0–1) is the gradient the editor optimizes.
+- **`full_pass`** = every *gating* line-item green. The gating tier **vetoes** the roll-up: an edit is
+  only accepted if it regresses no gating item. So the composite can never rise while the core flow breaks.
+- Every score is stamped with `rubric_version`; adding a failure mode is one registry entry + a re-baseline.
+
+## Mock-first, live-capable
+
+The loop's default is a **deterministic mock** of the Coinflow surface (`src/mock/`): a stateful oracle
+(issues real `paymentId`s, validates the reference field, trips a real `410` by controlling the velocity
+config) + a contract-faithful stub of `@coinflow/react` + a mock-served card-entry iframe. This makes the
+loop **deterministic, offline, CI-safe, and zero-blast-radius** — an autonomous loop never hammers the
+live sandbox. Live mode swaps the same integration code onto the real SDK/sandbox as a validation adapter.
+
+## Run it
+
+```bash
+pnpm install                        # Node 22, pnpm; installs Playwright
+pnpm exec playwright install chromium
+
+make smoke        # prove the oracle's deterministic core (no browser)
+make verify       # score a golden fixture (good | v0 | broken): pnpm verify golden-broken
+make implement    # one implementer run: mock reads v0 docs, verifier scores it
+make panel        # score a docs version across the 2-model panel + strict holdout
+make eval         # the full loop: panel → edit → panel; drops before/after + diff in artifacts/eval/
+```
+
+Live models (keys via Doppler — never printed):
+
+```bash
+doppler run -p playground -c dev -- pnpm implement claude za-guide.v0
+doppler run -p playground -c dev -- pnpm implement gpt   za-guide.v1
+```
+
+## Model-agnostic runner
+
+Every provider implements one interface (`src/runner/provider.ts`); a minimal agentic tool-use loop runs
+on top (`src/harness/agent.ts`). Adding a frontier model is a line in `src/runner/registry.ts`, not a
+rewrite. Adapters: `mock` (offline default), `claude` (Anthropic), `gpt` / `local` (OpenAI-compatible:
+OpenAI, vLLM, TGI, … via base URL + model string).
+
+## Layout
+
+```
+src/mock/         oracle API + stub @coinflow/react + fake iframe   (the substrate)
+src/rubric/       the metric as code (line-items, weights, gating veto)
+src/verifier/     boot + Playwright drive + structured scorecard
+scaffold/         fixed Vite+React+Express shell; agent fills frontend.tsx + charge.ts
+fixtures/         golden good / v0 / broken integrations (verifier trusted before any LLM)
+src/runner/       provider adapters + registry
+src/harness/      implementer agent loop, task/contract, panel runner
+src/editor/       ground-truthed, budgeted docs-editor
+src/loop/         optimize loop + `make eval`
+docs/             za-guide.v0.md (as-is), za-guide.v1.md (optimized), worked-example/, writeup.md
+```
+
+## Proof
+
+`docs/worked-example/` — the before/after, the doc diff, and live Claude scorecards. Headline: panel and
+held-out model both **0.70 → 1.00**, and **live Claude 0.70 → 1.00**, from a two-section, in-budget edit.
+
+Design rationale, brittleness, cost/latency, and CI wiring: **`docs/writeup.md`**.
