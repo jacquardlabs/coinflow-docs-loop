@@ -9,3 +9,6 @@ artifacts/
 
 # personal interview prep — kept local, not part of the submission
 docs/debrief-prep.md
+
+# take-home brief — contains live sandbox creds (login, 2FA seed); never commit
+*.pdf
