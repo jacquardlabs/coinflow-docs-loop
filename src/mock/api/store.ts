@@ -190,7 +190,10 @@ export class MockStore {
       return fail(400, "REFERENCE_IN_WRONG_FIELD", "A known paymentId was supplied, but not in the `originalPaymentId` field.");
     }
     if (ref.kind === "unknown" || !ref.record) {
-      return fail(404, "UNKNOWN_REFERENCE", "The referenced payment does not exist.");
+      // Pinned to the live sandbox (2026-07, via `pnpm probe`): a missing/unlocatable reference
+      // returns 410, not 404 ("Could not locate original payment"). The real API uses 410 for
+      // any reference that can no longer be used — expired, velocity-exceeded, or not found.
+      return fail(410, "REFERENCE_NO_LONGER_USABLE", "Could not locate original payment; the reference can no longer be used.");
     }
     const record = ref.record;
     if (!record.cvvVerified) {

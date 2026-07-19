@@ -40,7 +40,11 @@ does** — we are testing the docs, not the editor.
 
 - **The mock is only as faithful as its encoded contract.** Behaviors we didn't model won't be caught
   offline. Mitigations: pin the stub from the real published package + a periodic live-validation pass;
-  keep the mock's request log so novel failures surface for promotion.
+  keep the mock's request log so novel failures surface for promotion. *Run once (`pnpm probe`):* the live
+  sandbox confirmed the COF endpoint + `originalPaymentId` field + 410 semantics, and surfaced two things
+  the mock omitted — a missing reference returns `410` (we'd modeled `404`, now pinned) and real auth is
+  the merchant key **+ `x-coinflow-auth-user-id`** (the next line-item to promote). See
+  `docs/worked-example/live-sandbox-probe.md`.
 - **A deterministic mock provider proves the machinery, not that real agents benefit.** The live Claude
   run (0.70→1.00) is real evidence, but it is one model on one page. Generalization comes from the panel
   and the held-out model, run live.
