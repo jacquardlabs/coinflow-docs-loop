@@ -10,7 +10,9 @@
     "smoke": "tsx src/mock/api/smoke.ts",
     "drive:za": "tsx src/verifier/drive-za.ts",
     "verify": "tsx src/verifier/run.ts",
-    "implement": "tsx src/harness/run-implementer.ts"
+    "implement": "tsx src/harness/run-implementer.ts",
+    "panel": "tsx src/harness/run-panel.ts",
+    "eval": "tsx src/loop/run-optimize.ts"
   },
   "dependencies": {
     "express": "^4.21.2",

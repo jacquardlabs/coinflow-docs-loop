@@ -5,6 +5,22 @@ import type { ChatRequest, ChatResponse, ModelProvider, ToolCall } from "../prov
 // what the docs contain — so the whole loop (including the editor's before/after) runs
 // offline and in CI with zero keys. It is NOT the source of truth on whether docs improved
 // (the verifier is). It proves the machinery; real models at debrief prove generalization.
+//
+// Graded variants model "how explicitly must the docs state something before this reader
+// picks it up." A signal's doc "strength" is 0 (absent), 1 (mentioned in prose), or 2
+// (shown in a fenced code example). A variant with threshold t picks up the signal iff
+// strength >= t. Stricter readers need code examples, not just prose — a realistic proxy
+// for how much hand-holding a weaker vs stronger model needs.
+
+export interface MockThresholds {
+  correctRef: number;
+  handle410: number;
+  deviceId: number;
+}
+export interface MockConfig {
+  id: string;
+  thresholds: MockThresholds;
+}
 
 interface DocSignals {
   correctRef: boolean;
@@ -12,29 +28,43 @@ interface DocSignals {
   deviceId: boolean;
 }
 
-// Signals must come from the DOCS PAGE only — not the system/contract prompt, which
-// necessarily mentions concepts like "device id" as generic app requirements. Reading
-// those would leak signal the docs never taught.
 function extractDocs(req: ChatRequest): string {
   const user = req.messages.find((m) => m.role === "user");
   const content = user?.content ?? "";
   const marker = "=== DOCUMENTATION";
   const i = content.indexOf(marker);
-  return (i >= 0 ? content.slice(i) : content).toLowerCase();
+  return i >= 0 ? content.slice(i) : content;
 }
 
-function readSignals(req: ChatRequest): DocSignals {
-  const text = extractDocs(req);
+function codeText(docs: string): string {
+  return (docs.match(/```[\s\S]*?```/g) ?? []).join("\n");
+}
+
+/** 0 = absent, 1 = mentioned in prose, 2 = shown in a fenced code example. */
+function strength(docsLower: string, codeLower: string, keywords: string[]): number {
+  if (keywords.some((k) => codeLower.includes(k))) return 2;
+  if (keywords.some((k) => docsLower.includes(k))) return 1;
+  return 0;
+}
+
+function readSignals(req: ChatRequest, t: MockThresholds): DocSignals {
+  const docs = extractDocs(req);
+  const docsLower = docs.toLowerCase();
+  const codeLower = codeText(docs).toLowerCase();
+  const ref = strength(docsLower, codeLower, ["originalpaymentid"]);
+  const h410 = strength(docsLower, codeLower, ["410", "velocity"]);
+  // deliberately NOT matching "nsure" — it is a substring of "ensure"
+  const dev = strength(docsLower, codeLower, [
+    "purchaseprotection",
+    "x-device-id",
+    "getcoinflowdeviceid",
+    "device-id",
+    "device id",
+  ]);
   return {
-    correctRef: text.includes("originalpaymentid"),
-    handle410: /\b410\b/.test(text) || text.includes("velocity"),
-    // deliberately NOT matching "nsure" — it is a substring of "ensure"
-    deviceId:
-      text.includes("purchaseprotection") ||
-      text.includes("device-id") ||
-      text.includes("x-device-id") ||
-      text.includes("getcoinflowdeviceid") ||
-      text.includes("device id"),
+    correctRef: ref >= t.correctRef,
+    handle410: h410 >= t.handle410,
+    deviceId: dev >= t.deviceId,
   };
 }
 
@@ -112,11 +142,11 @@ function writesSoFar(req: ChatRequest): number {
   return req.messages.filter((m) => m.role === "tool" && m.content.startsWith("wrote ")).length;
 }
 
-export function mockProvider(): ModelProvider {
+export function mockProvider(cfg: MockConfig): ModelProvider {
   return {
-    id: "mock",
+    id: cfg.id,
     async complete(req: ChatRequest): Promise<ChatResponse> {
-      const s = readSignals(req);
+      const s = readSignals(req, cfg.thresholds);
       const n = writesSoFar(req);
       const call = (name: string, args: Record<string, unknown>): ToolCall => ({ id: randomUUID(), name, arguments: args });
 
