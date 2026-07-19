@@ -84,6 +84,9 @@ export interface RequestLogEntry {
   /** null => the integration called an endpoint that does not exist (hallucinated_endpoint). */
   matchedRoute: string | null;
   deviceIdHeaderPresent: boolean;
+  /** Card-on-File auth headers (recorded, not enforced — the real API requires both). */
+  authHeaderPresent: boolean;
+  userIdHeaderPresent: boolean;
   referenceField: ReferenceField;
   status: number;
   code: string | null;

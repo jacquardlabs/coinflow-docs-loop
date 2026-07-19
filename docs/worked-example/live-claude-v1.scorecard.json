@@ -1,5 +1,5 @@
 {
-  "rubricVersion": "v1",
+  "rubricVersion": "v2",
   "lineItems": [
     {
       "id": "boots",
@@ -23,6 +23,11 @@
     },
     {
       "id": "graceful_410",
+      "passed": true,
+      "reason": null
+    },
+    {
+      "id": "cof_auth",
       "passed": true,
       "reason": null
     },

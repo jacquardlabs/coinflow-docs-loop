@@ -13,8 +13,10 @@ export interface CoinflowEnv {
   /** The <CoinflowPurchase env=…> value. */
   sdkEnv: "sandbox" | "prod";
   merchantId: string;
-  /** Server-side API key for Card-on-File auth. Undefined in mock. */
+  /** Server-side merchant API key for Card-on-File auth. */
   apiKey: string | undefined;
+  /** Customer id for the x-coinflow-auth-user-id header on Card-on-File. */
+  userId: string | undefined;
   /** false => alias the stub SDK (mock); true => use the real @coinflow/react. */
   useRealSdk: boolean;
 }
@@ -29,14 +31,18 @@ export function resolveCoinflowEnv(overrides: Partial<CoinflowEnv> = {}): Coinfl
   const mode = (overrides.mode ?? (process.env.COINFLOW_MODE as CoinflowMode | undefined) ?? "mock") as CoinflowMode;
   const merchantId = overrides.merchantId ?? process.env.COINFLOW_MERCHANT_ID ?? "applied-ai";
   const apiKey = overrides.apiKey ?? process.env.COINFLOW_API_KEY;
+  const userId = overrides.userId ?? process.env.COINFLOW_USER_ID;
 
   if (mode === "mock") {
+    // Provide fake-but-present credentials so an integration CAN authenticate against the mock;
+    // the mock records header presence (it does not validate values), scoring the auth behavior.
     return {
       mode: "mock",
       apiBase: overrides.apiBase ?? process.env.COINFLOW_API_BASE ?? "http://localhost:4000",
       sdkEnv: "sandbox",
       merchantId,
-      apiKey,
+      apiKey: apiKey ?? "mock-merchant-key",
+      userId: userId ?? "mock-user",
       useRealSdk: false,
     };
   }
@@ -48,6 +54,7 @@ export function resolveCoinflowEnv(overrides: Partial<CoinflowEnv> = {}): Coinfl
     sdkEnv,
     merchantId,
     apiKey,
+    userId,
     useRealSdk: true,
   };
 }

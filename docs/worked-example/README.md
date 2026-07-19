@@ -16,12 +16,12 @@ sibling Card-on-File page, which the implementer never sees.
 
 - **Panel mean 0.70 → 1.00**, and the improvement **generalized to the held-out model** (`eval-thorough.summary.md`).
 - **Live confirmation:** real Claude, reading only the docs, scored the *same* 0.70 on v0 (`unhandled_410` + `missing_nsure_device_id`) and **1.00** on the editor's v1 — the offline loop's edits measurably improved a live frontier model (`live-claude-v0.scorecard.json`, `live-claude-v1.scorecard.json`).
-- **The edit was targeted and small:** two appended sections (410 handling + device id), doc grew 505 → 539 lines, inside the ≤20% budget (`v0-to-v1.diff.txt`).
+- **The edit was targeted and small:** three appended sections (410 handling, COF auth, device id), doc grew 505 → 558 lines, inside the ≤20% budget (`v0-to-v1.diff.txt`).
 
 ## Why the holdout earns its keep
 
 The **prose-only** editor run (`eval-prose-only.summary.md`) makes the anti-overfitting case
-concrete: adding the guidance as prose *without a code example* lifts the panel to 0.94 but
+concrete: adding the guidance as prose *without a code example* lifts the panel to 0.93 but
 leaves the strict held-out reader stuck at **0.70**. Prose satisfies the easy readers; the
 holdout only moves once the doc carries an actual code example. That gap is the overfitting a
 held-out model exists to catch — and the thorough editor clears it.

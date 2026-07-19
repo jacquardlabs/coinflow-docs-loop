@@ -15,7 +15,7 @@ docs page ──▶ implementer (model-agnostic) ──▶ integration ──▶
               (targeted edits, under a length budget, until the panel plateaus)
 ```
 
-## The metric (rubric v1)
+## The metric (rubric v2)
 
 A single run scores a **weighted line-item vector**, not a bare pass/fail — the editor needs a
 gradient, the scorecard needs an honest headline. See `src/rubric/rubric.ts`.
@@ -26,13 +26,15 @@ gradient, the scorecard needs an honest headline. See `src/rubric/rubric.ts`.
 | ZA renders | gating | 0.15 | `za_did_not_render` |
 | onSuccess + paymentId | gating | 0.25 | `no_payment_id` |
 | COF references paymentId correctly | gating | 0.20 | `wrong_reference_field` |
-| graceful 410 | additive | 0.18 | `unhandled_410` |
-| nSure device id | additive | 0.12 | `missing_nsure_device_id` |
+| graceful 410 | additive | 0.15 | `unhandled_410` |
+| COF auth headers | additive | 0.08 | `missing_auth_headers` |
+| nSure device id | additive | 0.07 | `missing_nsure_device_id` |
 
 - **`roll_up`** (0–1) is the gradient the editor optimizes.
 - **`full_pass`** = every *gating* line-item green. The gating tier **vetoes** the roll-up: an edit is
   only accepted if it regresses no gating item. So the composite can never rise while the core flow breaks.
 - Every score is stamped with `rubric_version`; adding a failure mode is one registry entry + a re-baseline.
+  **v2** added `cof_auth`, promoted from a live-sandbox probe (`docs/worked-example/live-sandbox-probe.md`) — the discovery→promotion loop in action.
 
 ## Mock-first, live-capable
 

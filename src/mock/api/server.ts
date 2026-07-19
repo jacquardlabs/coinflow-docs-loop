@@ -60,6 +60,8 @@ export function createMockServer(config: OracleConfig = DEFAULT_CONFIG): MockSer
       path: req.path,
       matchedRoute,
       deviceIdHeaderPresent: hasDeviceId(req),
+      authHeaderPresent: (req.header("authorization")?.length ?? 0) > 0,
+      userIdHeaderPresent: (req.header("x-coinflow-auth-user-id")?.length ?? 0) > 0,
       referenceField,
       status: result.ok ? 200 : result.status,
       code: result.ok ? null : result.code,

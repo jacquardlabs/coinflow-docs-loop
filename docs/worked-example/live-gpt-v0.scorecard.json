@@ -1,5 +1,5 @@
 {
-  "rubricVersion": "v1",
+  "rubricVersion": "v2",
   "lineItems": [
     {
       "id": "boots",
@@ -25,6 +25,11 @@
       "id": "graceful_410",
       "passed": false,
       "reason": "unhandled_410"
+    },
+    {
+      "id": "cof_auth",
+      "passed": false,
+      "reason": "missing_auth_headers"
     },
     {
       "id": "device_id",

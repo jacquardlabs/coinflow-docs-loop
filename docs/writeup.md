@@ -6,7 +6,7 @@ The loss function is: **can an autonomous agent ship a working ZA→COF integrat
 page alone?** A single run scores a **weighted line-item vector → roll-up ∈ [0,1]**, plus a binary
 `full_pass`. The vector matters because the metric has two consumers: the docs-editor needs a *dense
 gradient* to know which gap to target, and the scorecard needs an *honest headline* to know whether
-the integration actually works. A bare pass/fail starves the loop — a fix that moves three of six
+the integration actually works. A bare pass/fail starves the loop — a fix that moves three of seven
 assertions shows zero.
 
 Two rules keep a composite score safe. **Gating encodes dependency, weight encodes importance:** the
@@ -43,8 +43,8 @@ does** — we are testing the docs, not the editor.
   keep the mock's request log so novel failures surface for promotion. *Run once (`pnpm probe`):* the live
   sandbox confirmed the COF endpoint + `originalPaymentId` field + 410 semantics, and surfaced two things
   the mock omitted — a missing reference returns `410` (we'd modeled `404`, now pinned) and real auth is
-  the merchant key **+ `x-coinflow-auth-user-id`** (the next line-item to promote). See
-  `docs/worked-example/live-sandbox-probe.md`.
+  the merchant key **+ `x-coinflow-auth-user-id`** — now promoted to the `cof_auth` line-item (rubric
+  v2), the discovery→promotion loop end to end. See `docs/worked-example/live-sandbox-probe.md`.
 - **A deterministic mock provider proves the machinery, not that real agents benefit.** The live Claude
   run (0.70→1.00) is real evidence, but it is one model on one page. Generalization comes from the panel
   and the held-out model, run live.

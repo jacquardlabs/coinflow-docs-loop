@@ -8,6 +8,7 @@ export type LineItemId =
   | "onsuccess_payment_id"
   | "cof_correct_ref"
   | "graceful_410"
+  | "cof_auth"
   | "device_id";
 
 export type Tier = "gating" | "additive";
@@ -19,7 +20,10 @@ export interface LineItemSpec {
   label: string;
 }
 
-export const RUBRIC_VERSION = "v1";
+// v2: added `cof_auth`, promoted from a live-sandbox probe finding (the real COF API needs
+// `Authorization: <merchant-api-key>` + `x-coinflow-auth-user-id`). Bumping the version forces
+// a re-baseline — scores are never compared across rubric versions.
+export const RUBRIC_VERSION = "v2";
 
 // Weights sum to 1.0. Weight ∝ centrality to the documented use case: the ZA→COF chain
 // (gating) carries 0.70, robustness (additive) carries 0.30. Fixed before the loop runs.
@@ -28,8 +32,9 @@ export const LINE_ITEMS: LineItemSpec[] = [
   { id: "za_renders", tier: "gating", weight: 0.15, label: "Zero-Auth iframe renders" },
   { id: "onsuccess_payment_id", tier: "gating", weight: 0.25, label: "onSuccess fires with a paymentId" },
   { id: "cof_correct_ref", tier: "gating", weight: 0.2, label: "COF references paymentId correctly" },
-  { id: "graceful_410", tier: "additive", weight: 0.18, label: "410 handled gracefully" },
-  { id: "device_id", tier: "additive", weight: 0.12, label: "nSure device id forwarded" },
+  { id: "graceful_410", tier: "additive", weight: 0.15, label: "410 handled gracefully" },
+  { id: "cof_auth", tier: "additive", weight: 0.08, label: "COF auth headers (Authorization + x-coinflow-auth-user-id)" },
+  { id: "device_id", tier: "additive", weight: 0.07, label: "nSure device id forwarded" },
 ];
 
 export interface LineItemResult {

@@ -16,6 +16,7 @@ export interface MockThresholds {
   correctRef: number;
   handle410: number;
   deviceId: number;
+  auth: number;
 }
 export interface MockConfig {
   id: string;
@@ -26,6 +27,7 @@ interface DocSignals {
   correctRef: boolean;
   handle410: boolean;
   deviceId: boolean;
+  auth: boolean;
 }
 
 function extractDocs(req: ChatRequest): string {
@@ -61,10 +63,12 @@ function readSignals(req: ChatRequest, t: MockThresholds): DocSignals {
     "device-id",
     "device id",
   ]);
+  const auth = strength(docsLower, codeLower, ["x-coinflow-auth-user-id", "auth-user-id"]);
   return {
     correctRef: ref >= t.correctRef,
     handle410: h410 >= t.handle410,
     deviceId: dev >= t.deviceId,
+    auth: auth >= t.auth,
   };
 }
 
@@ -110,18 +114,22 @@ export function ZeroAuthStep({ onPaymentId, merchantId, env }: ZeroAuthStepProps
 
 function chargeFile(s: DocSignals): string {
   const refField = s.correctRef ? "originalPaymentId" : "paymentId";
-  const param = s.deviceId ? "{ paymentId, deviceId }" : "{ paymentId }";
+  const inputParam = s.deviceId ? "{ paymentId, deviceId }" : "{ paymentId }";
+  const ctxParam = s.auth ? "{ apiBase, apiKey, userId }" : "{ apiBase }";
+  const authHeaders = s.auth
+    ? `\n      ...(apiKey ? { authorization: apiKey } : {}),\n      ...(userId ? { "x-coinflow-auth-user-id": userId } : {}),`
+    : "";
   const deviceHeader = s.deviceId ? `\n      ...(deviceId ? { "x-device-id": deviceId } : {}),` : "";
   const handle410 = s.handle410
     ? `  if (res.status === 410) {\n    return { status: "needs_reverification", reason: "reference_no_longer_usable" };\n  }\n`
     : "";
   return `import type { ChargeFn } from "@contract";
 
-export const charge: ChargeFn = async (${param}, { apiBase }) => {
+export const charge: ChargeFn = async (${inputParam}, ${ctxParam}) => {
   const res = await fetch(\`\${apiBase}/api/checkout/card-on-file\`, {
     method: "POST",
     headers: {
-      "content-type": "application/json",${deviceHeader}
+      "content-type": "application/json",${authHeaders}${deviceHeader}
     },
     body: JSON.stringify({
       subtotal: { cents: 2500, currency: "USD" },

@@ -12,8 +12,10 @@ export interface ChargeContext {
   /** Coinflow API base URL (mock or live). */
   apiBase: string;
   merchantId: string;
-  /** Server-side API key for Card-on-File auth. Undefined in mock mode. */
+  /** Server-side merchant API key for Card-on-File auth (raw `Authorization` header). */
   apiKey?: string;
+  /** Customer id for the `x-coinflow-auth-user-id` header on Card-on-File. */
+  userId?: string;
 }
 
 export type ChargeResult =

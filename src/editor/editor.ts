@@ -56,6 +56,27 @@ const REMEDIATION: Partial<Record<LineItemId, Remediation>> = {
       "```",
     ].join("\n"),
   },
+  cof_auth: {
+    marker: "## Authenticating Card-on-File requests",
+    prose: [
+      "Card-on-File is a server-side call. Authenticate it with your merchant API key in the",
+      "`Authorization` header — sent **raw**, not as a Bearer token — and identify the customer with",
+      "the `x-coinflow-auth-user-id` header.",
+    ].join("\n"),
+    code: [
+      "```ts",
+      "const res = await fetch(`${apiBase}/api/checkout/card-on-file`, {",
+      '  method: "POST",',
+      "  headers: {",
+      '    "content-type": "application/json",',
+      "    authorization: apiKey, // raw merchant key, not Bearer",
+      '    "x-coinflow-auth-user-id": userId,',
+      "  },",
+      "  body: JSON.stringify({ originalPaymentId: paymentId, subtotal }),",
+      "});",
+      "```",
+    ].join("\n"),
+  },
   cof_correct_ref: {
     marker: "## Referencing the stored card",
     prose: [

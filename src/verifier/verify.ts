@@ -75,7 +75,7 @@ export async function verify(fixtureDir: string): Promise<VerifyResult> {
 
   // 2. Integration backend (agent-filled charge()).
   const chargeMod = (await import(pathToFileURL(path.join(fixtureDir, "charge.ts")).href)) as { charge: ChargeFn };
-  const backend = createIntegrationServer(chargeMod.charge, { apiBase: cf.apiBase, merchantId: cf.merchantId, apiKey: cf.apiKey });
+  const backend = createIntegrationServer(chargeMod.charge, { apiBase: cf.apiBase, merchantId: cf.merchantId, apiKey: cf.apiKey, userId: cf.userId });
   const backendServer = backend.listen(0);
   const backendPort = (backendServer.address() as AddressInfo).port;
 
@@ -143,6 +143,9 @@ export async function verify(fixtureDir: string): Promise<VerifyResult> {
         }
         if (cof1?.deviceIdHeaderPresent) pass("device_id");
         else fail("device_id", "missing_nsure_device_id");
+
+        if (cof1?.authHeaderPresent && cof1.userIdHeaderPresent) pass("cof_auth");
+        else fail("cof_auth", "missing_auth_headers");
 
         // Charge #2 — trips the velocity 410 (covers graceful_410). Wait on the #2
         // outcome specifically (reverify|error), not the lingering #1 success state.

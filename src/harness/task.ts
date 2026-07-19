@@ -27,9 +27,9 @@ Produce a working integration by writing exactly two files, then calling submit:
    \`import type { ... } from "@contract"\` — it exports types only.
 
 2. charge.ts — a backend module that exports:
-     export const charge: ChargeFn = async ({ paymentId, deviceId }, { apiBase, merchantId, apiKey }) => { ... }
-   Charge the stored card by calling the SDK's HTTP API at \`apiBase\`, referencing the
-   stored card via paymentId, and authenticate the request with apiKey as the docs describe. Return one of:
+     export const charge: ChargeFn = async ({ paymentId, deviceId }, { apiBase, merchantId, apiKey, userId }) => { ... }
+   Charge the stored card by calling the SDK's HTTP API at \`apiBase\`, referencing the stored
+   card via paymentId, and authenticate the request with apiKey and userId as the docs describe. Return one of:
      - { status: "charged", paymentId }               on success
      - { status: "needs_reverification" }             if the stored card can no longer be charged and the customer must re-verify
      - { status: "error", code }                       otherwise

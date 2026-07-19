@@ -1,4 +1,4 @@
-# Eval before/after — mode=thorough, rubric v1
+# Eval before/after — mode=thorough, rubric v2
 
 | model | role | before | after |
 |---|---|---|---|
@@ -9,5 +9,5 @@
 - **panel mean:** 0.70 → 1.00
 - **holdout mean:** 0.70 → 1.00
 - iterations: 1
-- edits applied: graceful_410, device_id
-- doc length: 505 → 539 lines (budget ≤ 606, within: yes)
+- edits applied: graceful_410, cof_auth, device_id
+- doc length: 505 → 558 lines (budget ≤ 606, within: yes)

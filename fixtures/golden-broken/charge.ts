@@ -1,14 +1,15 @@
 import type { ChargeFn } from "../../scaffold/src/contract.js";
 
 // Broken: references the ZA paymentId in the WRONG field (`paymentId` instead of
-// `originalPaymentId`). Device id is forwarded and 410 is handled correctly — only the
-// reference field is wrong. Demonstrates the gating veto: a non-trivial roll-up, but
-// full_pass=false because the core chain is broken.
-export const charge: ChargeFn = async ({ paymentId, deviceId }, { apiBase }) => {
+// `originalPaymentId`). Auth, device id, and 410 handling are all correct — only the reference
+// field is wrong. Demonstrates the gating veto: a non-trivial roll-up, but full_pass=false.
+export const charge: ChargeFn = async ({ paymentId, deviceId }, { apiBase, apiKey, userId }) => {
   const res = await fetch(`${apiBase}/api/checkout/card-on-file`, {
     method: "POST",
     headers: {
       "content-type": "application/json",
+      ...(apiKey ? { authorization: apiKey } : {}),
+      ...(userId ? { "x-coinflow-auth-user-id": userId } : {}),
       ...(deviceId ? { "x-device-id": deviceId } : {}),
     },
     body: JSON.stringify({

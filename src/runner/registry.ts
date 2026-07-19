@@ -8,10 +8,10 @@ import { openAICompatibleProvider } from "./providers/openai-compatible.js";
 // Graded mock readers: stricter variants need signals shown in code examples, not just
 // prose. Panel = the two easier readers; holdout = the strict one (see run-panel.ts).
 const MOCK_VARIANTS: Record<string, MockThresholds> = {
-  mock: { correctRef: 1, handle410: 1, deviceId: 1 },
-  "mock-lenient": { correctRef: 1, handle410: 1, deviceId: 1 },
-  "mock-careful": { correctRef: 1, handle410: 1, deviceId: 2 },
-  "mock-literal": { correctRef: 1, handle410: 2, deviceId: 2 },
+  mock: { correctRef: 1, handle410: 1, deviceId: 1, auth: 1 },
+  "mock-lenient": { correctRef: 1, handle410: 1, deviceId: 1, auth: 1 },
+  "mock-careful": { correctRef: 1, handle410: 1, deviceId: 2, auth: 2 },
+  "mock-literal": { correctRef: 1, handle410: 2, deviceId: 2, auth: 2 },
 };
 
 // Adding a model is a line here — an id → provider. Same interface for mock, hosted, and
