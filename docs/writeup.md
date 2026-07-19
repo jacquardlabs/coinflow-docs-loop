@@ -58,6 +58,10 @@ does** — we are testing the docs, not the editor.
   410/device edits from v1 yet keeps hallucinating the COF endpoint — a gap the mock never exhibits, so the
   editor never targeted it. Mitigation: put real, diverse models *in* the panel (not just the holdout); the
   mock is for CI and machinery, not for discovering which gaps matter.
+- **The verifier boots the app in-process, not in a container.** Vite + the integration's Express run as
+  ephemeral in-process servers — hermetic enough for the mock, faster, and simplest in CI. The spec lists a
+  container explicitly; a Dockerfile wrapping `make eval` is the productionization step, and the boot/drive
+  logic is unchanged. Called out here so the deviation is owned, not silently dropped.
 
 ## Cost, latency, flakiness — honest numbers
 
@@ -72,7 +76,8 @@ does** — we are testing the docs, not the editor.
 
 ## Wiring into CI to gate doc and SDK changes
 
-- **On every PR** touching `docs/`, `src/`, `scaffold/`, or the pinned SDK version: run `typecheck` +
+- **On every PR** touching `docs/`, `src/`, `scaffold/`, or the SDK version (the real `@coinflow/react` is
+  stubbed in mock; live mode pins it as a dep): run `typecheck` +
   `smoke` + a golden-fixture verify + `make eval` on the **mock panel** (no secrets), and post the
   before/after scorecard as a PR comment. **Fail the gate** if `full_pass` rate drops or any gating
   line-item regresses. This is cheap, deterministic, and secret-free.

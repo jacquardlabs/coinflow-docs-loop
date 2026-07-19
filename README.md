@@ -31,8 +31,9 @@ gradient, the scorecard needs an honest headline. See `src/rubric/rubric.ts`.
 | nSure device id | additive | 0.07 | `missing_nsure_device_id` |
 
 - **`roll_up`** (0–1) is the gradient the editor optimizes.
-- **`full_pass`** = every *gating* line-item green. The gating tier **vetoes** the roll-up: an edit is
-  only accepted if it regresses no gating item. So the composite can never rise while the core flow breaks.
+- **`full_pass`** = every *gating* line-item green. The gating tier **vetoes** the roll-up — an edit is
+  accepted only if it regresses no gating item (enforced in `src/loop/optimize.ts`: a regressing edit is
+  rejected and not shipped). So the composite can never rise while the core flow breaks.
 - Every score is stamped with `rubric_version`; adding a failure mode is one registry entry + a re-baseline.
   **v2** added `cof_auth`, promoted from a live-sandbox probe (`docs/worked-example/live-sandbox-probe.md`) — the discovery→promotion loop in action.
 
@@ -85,6 +86,8 @@ seam; `merchantId`, `env`, and `apiKey` flow from it through the contract into t
 | `COINFLOW_MERCHANT_ID` | `applied-ai` | yours | yours |
 | `COINFLOW_API_KEY` | — | required | required |
 
+*`sandbox` is validated by `pnpm probe`; `prod` is wired but unexercised (no prod creds) — treat it as untested.*
+
 Validate the mock's contract against the real sandbox API (needs the key):
 
 ```bash
@@ -98,27 +101,30 @@ live hosted-iframe selectors (a documented extension); the mock path and `pnpm p
 
 Every provider implements one interface (`src/runner/provider.ts`); a minimal agentic tool-use loop runs
 on top (`src/harness/agent.ts`). Adding a frontier model is a line in `src/runner/registry.ts`, not a
-rewrite. Adapters: `mock` (offline default), `claude` (Anthropic), `gpt` / `local` (OpenAI-compatible:
-OpenAI, vLLM, TGI, … via base URL + model string).
+rewrite. Adapters: `mock` (offline default), `claude` (Anthropic), and OpenAI-compatible `gpt` (OpenAI,
+pinned snapshot) / `gemini` (Google) / `local` (vLLM, TGI, … via base URL + model string).
 
 ## Layout
 
 ```
 src/mock/         oracle API + stub @coinflow/react + fake iframe   (the substrate)
-src/rubric/       the metric as code (line-items, weights, gating veto)
+src/rubric/       the metric as code (line-items, weights, full_pass)
 src/verifier/     boot + Playwright drive + structured scorecard
 scaffold/         fixed Vite+React+Express shell; agent fills frontend.tsx + charge.ts
 fixtures/         golden good / v0 / broken integrations (verifier trusted before any LLM)
 src/runner/       provider adapters + registry
 src/harness/      implementer agent loop, task/contract, panel runner
 src/editor/       ground-truthed, budgeted docs-editor
-src/loop/         optimize loop + `make eval`
+src/loop/         optimize loop + gating veto + `make eval`
 docs/             za-guide.v0.md (as-is), za-guide.v1.md (optimized), worked-example/, writeup.md
 ```
 
 ## Proof
 
-`docs/worked-example/` — the before/after, the doc diff, and live Claude scorecards. Headline: panel and
-held-out model both **0.70 → 1.00**, and **live Claude 0.70 → 1.00**, from a two-section, in-budget edit.
+`docs/worked-example/` — the before/after, the doc diff, live scorecards + full run dirs (`runs/`), and a
+live-sandbox probe. Headline: panel and held-out model both **0.70 → 1.00**, and **live Claude 0.70 → 1.00**,
+from a three-section, in-budget edit. The honest counterpoint: **live GPT-4o stayed 0.50 → 0.50** — it learned
+the edits but hallucinates the COF endpoint, a gap the mock panel never showed (see the two-real-models
+table). That divergence is the case for real, diverse models in the panel.
 
 Design rationale, brittleness, cost/latency, and CI wiring: **`docs/writeup.md`**.

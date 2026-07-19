@@ -1,0 +1,10 @@
+{
+  "provider": "claude-opus-4-8",
+  "docsVersion": "za-guide.v0",
+  "steps": 2,
+  "stopReason": "submitted",
+  "usage": {
+    "inputTokens": 16917,
+    "outputTokens": 2217
+  }
+}

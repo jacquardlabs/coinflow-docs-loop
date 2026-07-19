@@ -1,0 +1,10 @@
+{
+  "provider": "gpt-4o",
+  "docsVersion": "za-guide.v0",
+  "steps": 2,
+  "stopReason": "submitted",
+  "usage": {
+    "inputTokens": 9072,
+    "outputTokens": 528
+  }
+}

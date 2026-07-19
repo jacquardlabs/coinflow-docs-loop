@@ -6,3 +6,6 @@ artifacts/
 .env.*
 !.env.example
 .DS_Store
+
+# personal interview prep — kept local, not part of the submission
+docs/debrief-prep.md
