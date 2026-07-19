@@ -46,9 +46,11 @@ export function anthropicProvider(model: string): ModelProvider {
         method: "POST",
         headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
         body: JSON.stringify({
+          // NOTE: newer Anthropic models (e.g. Opus 4.8) deprecate `temperature` and 400 if
+          // it is sent — so we omit it. Where a model won't let us pin temperature, that's
+          // exactly why the harness reports variance across N runs rather than assuming determinism.
           model,
-          max_tokens: req.maxTokens ?? 4096,
-          temperature: req.temperature ?? 0,
+          max_tokens: req.maxTokens ?? 8192,
           system: req.system,
           tools: req.tools.map((t) => ({ name: t.name, description: t.description, input_schema: t.parameters })),
           messages: toAnthropicMessages(req.messages),
