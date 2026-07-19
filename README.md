@@ -55,11 +55,18 @@ make panel        # score a docs version across the 2-model panel + strict holdo
 make eval         # the full loop: panel → edit → panel; drops before/after + diff in artifacts/eval/
 ```
 
-Live models (keys via Doppler — never printed):
+Live models — supply keys however you like; the loop auto-loads a repo-root `.env`, and
+exported vars or a secrets manager override it:
 
 ```bash
-doppler run -p playground -c dev -- pnpm implement claude za-guide.v0
-doppler run -p playground -c dev -- pnpm implement gpt   za-guide.v1
+cp .env.example .env        # then fill in ANTHROPIC_API_KEY / OPENAI_API_KEY
+pnpm implement claude za-guide.v0
+pnpm implement gpt   za-guide.v1
+
+# equivalently, without a file:
+ANTHROPIC_API_KEY=sk-ant-... pnpm implement claude za-guide.v0
+# or via any secrets manager, e.g. Doppler:
+doppler run -- pnpm implement claude za-guide.v0
 ```
 
 ## Model-agnostic runner

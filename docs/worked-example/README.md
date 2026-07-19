@@ -36,7 +36,7 @@ held-out model exists to catch — and the thorough editor clears it.
 | `live-claude-v0.scorecard.json` | live Claude on the as-is page → 0.70 |
 | `live-claude-v1.scorecard.json` | live Claude on the optimized page → 1.00 |
 
-Regenerate everything with `make eval` (offline) or `doppler run -p playground -c dev -- pnpm implement claude za-guide.v1` (live).
+Regenerate everything with `make eval` (offline) or `pnpm implement claude za-guide.v1` (live, with keys in `.env` or the environment).
 
 ## Two real models diverge — the mock panel's blind spot
 

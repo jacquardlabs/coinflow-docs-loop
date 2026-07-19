@@ -1,4 +1,5 @@
 import type { ModelProvider } from "./provider.js";
+import { loadEnv } from "./env.js";
 import { mockProvider } from "./providers/mock.js";
 import type { MockThresholds } from "./providers/mock.js";
 import { anthropicProvider } from "./providers/anthropic.js";
@@ -16,6 +17,7 @@ const MOCK_VARIANTS: Record<string, MockThresholds> = {
 // Adding a model is a line here — an id → provider. Same interface for mock, hosted, and
 // self-hosted. Panel composition and holdout selection are just lists of these ids.
 export function getProvider(id: string): ModelProvider {
+  loadEnv(); // pick up a .env if present; exported vars / secrets managers still win
   const thresholds = MOCK_VARIANTS[id];
   if (thresholds) return mockProvider({ id, thresholds });
 
