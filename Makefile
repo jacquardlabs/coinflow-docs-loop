@@ -21,5 +21,8 @@ panel:       ## score a docs version across the panel + holdout
 probe:       ## validate the mock's contract against the live sandbox (needs COINFLOW_MODE=sandbox + key)
 	pnpm probe
 
+test-veto:   ## unit-test the gating-veto regression guard
+	pnpm test:veto
+
 typecheck:   ## type-check the whole repo
 	pnpm typecheck

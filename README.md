@@ -4,7 +4,7 @@ The docs page is the artifact under optimization. Integration success is the los
 
 Here's the bet. An implementer agent reads one Coinflow docs page — plus a task and a sandbox — and
 produces a runnable Zero-Authorization → Card-on-File integration. A deterministic verifier proves it
-actually works: it boots the app and drives the real card-entry iframe with a headless browser. The
+actually works: it boots the app and drives the card-entry iframe headless (the mock-served stub by default; the real SDK in live mode). The
 failure signals feed a docs-editor that makes targeted edits to the page. The whole thing runs across a
 panel of models with one held out, so the docs never overfit to a single model.
 
@@ -32,8 +32,8 @@ scorecard needs an honest headline. The definition lives in `src/rubric/rubric.t
 
 - `roll_up` (0–1) is the gradient the editor optimizes.
 - `full_pass` is every gating line-item green. The gating tier vetoes the roll-up — an edit lands only if
-  it regresses no gating item (enforced in `src/loop/optimize.ts`: a regressing edit is rejected, not
-  shipped). So the composite can't climb while the core flow breaks.
+  it regresses no gating item (enforced in `src/loop/optimize.ts` and unit-tested — the guard for a restructuring real-model
+  editor; the append-only default can't trigger it). So the composite can't climb while the core flow breaks.
 - Every score carries `rubric_version`; adding a failure mode is one registry entry plus a re-baseline. v2
   added `cof_auth`, which I promoted from a live-sandbox probe (`docs/worked-example/live-sandbox-probe.md`)
   — the discovery→promotion loop in action.

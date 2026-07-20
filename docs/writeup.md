@@ -79,6 +79,10 @@ I'll lead with the limits, because they're the interesting part.
 - Live: one implementer run is a 2–3 step tool-use loop, ~16k in / ~2k out tokens on Opus 4.8 — cents. A
   full live panel is `N × models × iterations`, so I budget it deliberately; latency is the model and the
   browser, not my code.
+- Variance is real, and I measured it (N=3 on the v0 page). Claude scored **0.70 / 0.85 / 0.70** — same
+  page, and the number moves because it *sometimes* handles the 410 from general knowledge and sometimes
+  doesn't. GPT-4o scored **0.50 / 0.50** with one run erroring out mid-drive. That's "agent evals are noisy"
+  made concrete, and why I report a spread and retry rather than trust one run.
 - Determinism caveat: Opus 4.8 deprecates `temperature` (it 400s), so I can't pin it there. That's exactly
   why the harness reports variance across N runs instead of assuming determinism — the model-agnostic layer
   has to absorb this kind of per-provider drift.

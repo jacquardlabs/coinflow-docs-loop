@@ -32,8 +32,12 @@ function panelGatingPasses(r: PanelResult): Map<LineItemId, boolean> {
   return passes;
 }
 
-/** True if any gating item that passed the panel before now fails on some panel model. */
-function regressesGating(prev: PanelResult, next: PanelResult): boolean {
+/**
+ * True if any gating item that passed the panel before now fails on some panel model. This is a
+ * guard for a restructuring (real-model) editor: the shipped append-only editor is monotonic in
+ * signals and can't trigger it, so it's exercised directly by a unit test (src/loop/veto.test.ts).
+ */
+export function regressesGating(prev: PanelResult, next: PanelResult): boolean {
   const before = panelGatingPasses(prev);
   const after = panelGatingPasses(next);
   for (const [id, passed] of before) if (passed && after.get(id) !== true) return true;

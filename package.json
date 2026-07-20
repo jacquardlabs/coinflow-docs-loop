@@ -13,7 +13,8 @@
     "implement": "tsx src/harness/run-implementer.ts",
     "panel": "tsx src/harness/run-panel.ts",
     "eval": "tsx src/loop/run-optimize.ts",
-    "probe": "tsx src/verifier/live-probe.ts"
+    "probe": "tsx src/verifier/live-probe.ts",
+    "test:veto": "tsx src/loop/veto.test.ts"
   },
   "dependencies": {
     "express": "^4.21.2",

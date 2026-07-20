@@ -41,6 +41,8 @@ jobs:
         run: |
           pnpm verify golden-good
           pnpm verify golden-broken
+      - name: Gating-veto guard (unit)
+        run: pnpm test:veto
 
       # The full panel -> edit -> panel loop; drops before/after + diff in artifacts/eval/.
       - name: make eval (mock panel)
