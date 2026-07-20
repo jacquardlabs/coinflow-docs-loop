@@ -24,8 +24,16 @@ the docs, not the editor.
 ## What I'd build with 10× the time
 
 - A real multi-provider panel at scale — Anthropic, OpenAI, Google, and an open-weight model through the
-  OpenAI-compatible adapter, N≥5, with confidence intervals and a significance test on before/after so I'm
-  optimizing signal, not noise.
+  OpenAI-compatible adapter, N≥5 — so the panel spans the models customers actually run, not the two I had
+  keys for.
+- Measure what the doc *taught*, not what the model already knew. The N=3 run made this concrete — Claude
+  scored 0.85 on the *un-edited* page, handling the 410 from general knowledge, so the raw score conflates
+  doc quality with the model's priors. A doc that passes only because today's Claude fills the gaps is one
+  that breaks on the model shipping next quarter without them — the case the brief is actually betting on. So
+  I'd optimize the doc's *marginal lift* — the gain it produces holding the model fixed, averaged over models
+  of different strength, leaning on the weaker readers where the doc has to do the work — instead of the raw
+  number. And I'd make the editor's acceptance variance-aware: the panel mean wobbles ±0.07 within a single
+  model, so I accept a gain only when it clears the noise, not the deterministic ε the mock loop gets away with.
 - Harder gaps. Today's worked example is a missing-fact gap. The gap that matters more is agent-legibility:
   the fact is on the page but buried, mis-ordered, or ambiguously named. That needs a broader failure
   taxonomy and the one place an LLM-judge earns its seat — "did the agent have to ask a clarifying question
