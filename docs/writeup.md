@@ -33,6 +33,13 @@ the docs, not the editor.
 - A real-model editor instead of the deterministic remediation mapper — same length budget, a
   no-model-specific-hacks check, human diff review, and auto-promotion of recurring unclassified mock
   rejections into named line-items.
+- A second worked example, to *prove* page-independence instead of asserting it. The brief gave two pages; my
+  worked example optimizes the ZA page and uses the COF page as the withheld answer key. The loop is
+  page-agnostic — pointing it at the COF page or a consolidated ZA+COF guide is a CLI argument — but I only
+  proved it on one page. I'd run it on the COF page too, likely a *different* failure profile (rich on
+  410/auth/device, thin on ZA rendering, so it'd need a new `za_renders` remediation), so the claim becomes
+  "the loop closes whatever gap a page actually has," not one page I hand-picked. I left it out on purpose —
+  a thin loop that closes beats a fourth half-built demo — but it's the first thing I'd add.
 - Whole-docs-site scope and higher mock fidelity: a cross-origin iframe for the PCI boundary, the full
   velocity config (period/expiration behind a clock hook), the 3DS and token paths.
 
